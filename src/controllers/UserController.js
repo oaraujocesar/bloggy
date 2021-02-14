@@ -1,3 +1,5 @@
+import bcrypt from 'bcrypt'
+
 import User from '../models/User'
 
 class UserController {
@@ -26,9 +28,36 @@ class UserController {
   }
 
   async update(request, response) {
-    console.log(request.userId)
+    const { name, email, oldPassword, password, bio, avatar } = request.body
 
-    return response.json({ ok: true })
+    const user = await User.findOne({ _id: request.userId })
+
+    if (!user) {
+      return response.status(404).json({ error: 'User not found.' })
+    }
+
+    if (oldPassword) {
+      if (!(await bcrypt.compare(oldPassword, user.password))) {
+        return response
+          .status(400)
+          .json({ error: 'Old password does not match' })
+      }
+
+      user.password = password
+    }
+
+    user.name = name
+    user.email = email
+    user.bio = bio
+    user.avatar = avatar
+
+    user.save()
+
+    const { id, createdAt, updatedAt } = user
+
+    return response
+      .status(201)
+      .json({ id, name, email, bio, avatar, createdAt, updatedAt })
   }
 }
 

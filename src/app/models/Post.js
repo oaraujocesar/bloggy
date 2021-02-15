@@ -5,7 +5,7 @@ const PostSchema = new Schema({
     type: String,
     required: true,
   },
-  substitle: String,
+  subtitle: String,
   tags: String,
   cover: {
     type: String,
